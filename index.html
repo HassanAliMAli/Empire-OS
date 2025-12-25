@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Empire OS - A personal, lifelong, elite daily journal and life operating system">
+  <meta name="theme-color" content="#d4af37">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self';
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com;
+    connect-src 'self' https://api.github.com;
+    img-src 'self' data:;
+  ">
+  
+  <title>Empire OS</title>
+  
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Screen Reader Announcements -->
+  <div role="status" aria-live="polite" id="notifications" class="sr-only"></div>
+  
+  <!-- App Container -->
+  <div id="app" class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button id="menu-btn" class="icon-btn" aria-label="Menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12h18M3 6h18M3 18h18"/>
+          </svg>
+        </button>
+        <div class="logo">
+          <svg class="logo-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="14" stroke="var(--accent-gold)" stroke-width="2"/>
+            <path d="M16 6v20M6 16h20" stroke="var(--accent-gold)" stroke-width="2"/>
+            <circle cx="16" cy="16" r="6" fill="var(--accent-gold)"/>
+          </svg>
+          <span class="logo-text">Empire OS</span>
+        </div>
+      </div>
+      
+      <div class="header-center">
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+          <button class="nav-btn active" data-view="dashboard" aria-current="page">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="9" rx="1"/>
+              <rect x="14" y="3" width="7" height="5" rx="1"/>
+              <rect x="14" y="12" width="7" height="9" rx="1"/>
+              <rect x="3" y="16" width="7" height="5" rx="1"/>
+            </svg>
+            <span>Dashboard</span>
+          </button>
+          <button class="nav-btn" data-view="editor">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+            <span>Editor</span>
+          </button>
+          <button class="nav-btn" data-view="timeline">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <polyline points="6 10 12 4 18 10"/>
+              <circle cx="12" cy="20" r="2"/>
+            </svg>
+            <span>Timeline</span>
+          </button>
+          <button class="nav-btn" data-view="analytics">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+            <span>Analytics</span>
+          </button>
+        </nav>
+      </div>
+      
+      <div class="header-right">
+        <div class="sync-status" id="sync-status">
+          <span class="sync-icon synced" aria-label="Synced">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </span>
+          <span class="sync-text">Synced</span>
+        </div>
+        <div class="streak-badge" id="streak-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+          </svg>
+          <span id="streak-count">0</span>
+        </div>
+        <button id="settings-btn" class="icon-btn" aria-label="Settings">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Dashboard View -->
+      <section id="view-dashboard" class="view view-dashboard active">
+        <div class="dashboard-grid">
+          <!-- Today Card -->
+          <div class="card card-today">
+            <div class="card-header">
+              <h2 class="card-title">Today's Journal</h2>
+              <span class="card-date" id="today-date"></span>
+            </div>
+            <div class="card-body">
+              <div class="today-status" id="today-status">
+                <div class="today-empty">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                  <p>No entry for today yet</p>
+                  <button class="btn btn-primary" id="start-today-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19"/>
+                      <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Start Today's Entry
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Stats Cards -->
+          <div class="card card-stats">
+            <div class="stat">
+              <span class="stat-value" id="stat-streak">0</span>
+              <span class="stat-label">Day Streak</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="stat-entries">0</span>
+              <span class="stat-label">Total Entries</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="stat-avg">0.0</span>
+              <span class="stat-label">Avg Score</span>
+            </div>
+          </div>
+          
+          <!-- Recent Entries -->
+          <div class="card card-recent">
+            <div class="card-header">
+              <h2 class="card-title">Recent Entries</h2>
+              <button class="btn btn-ghost" id="view-all-btn">View All</button>
+            </div>
+            <div class="card-body">
+              <ul class="entry-list" id="recent-entries">
+                <li class="entry-empty">No entries yet. Start your journey today!</li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- Quick Score Chart -->
+          <div class="card card-chart">
+            <div class="card-header">
+              <h2 class="card-title">Score Trend</h2>
+              <span class="card-subtitle">Last 7 days</span>
+            </div>
+            <div class="card-body">
+              <canvas id="score-chart" width="400" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Editor View -->
+      <section id="view-editor" class="view view-editor">
+        <div class="editor-container">
+          <div class="editor-header">
+            <div class="editor-date">
+              <button class="icon-btn" id="prev-day-btn" aria-label="Previous day">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="15 18 9 12 15 6"/>
+                </svg>
+              </button>
+              <input type="date" id="entry-date" class="date-input" aria-label="Entry date">
+              <button class="icon-btn" id="next-day-btn" aria-label="Next day">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </div>
+            <div class="editor-actions">
+              <button class="btn btn-ghost" id="discard-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                Discard
+              </button>
+              <button class="btn btn-primary" id="save-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                  <polyline points="17 21 17 13 7 13 7 21"/>
+                  <polyline points="7 3 7 8 15 8"/>
+                </svg>
+                Save
+              </button>
+            </div>
+          </div>
+          
+          <form class="editor-form" id="journal-form">
+            <!-- Frontmatter Scores -->
+            <div class="editor-section editor-scores">
+              <h3 class="section-title">Daily Metrics</h3>
+              <div class="scores-grid">
+                <div class="score-field">
+                  <label for="score-overall">Overall Score</label>
+                  <input type="range" id="score-overall" name="score" min="0" max="10" value="5">
+                  <span class="score-value" data-for="score-overall">5</span>
+                </div>
+                <div class="score-field">
+                  <label for="score-discipline">Discipline</label>
+                  <input type="range" id="score-discipline" name="discipline" min="0" max="10" value="5">
+                  <span class="score-value" data-for="score-discipline">5</span>
+                </div>
+                <div class="score-field">
+                  <label for="score-focus">Focus</label>
+                  <input type="range" id="score-focus" name="focus" min="0" max="10" value="5">
+                  <span class="score-value" data-for="score-focus">5</span>
+                </div>
+                <div class="score-field">
+                  <label for="score-energy">Energy</label>
+                  <input type="range" id="score-energy" name="energy" min="0" max="10" value="5">
+                  <span class="score-value" data-for="score-energy">5</span>
+                </div>
+                <div class="score-field">
+                  <label for="score-mood">Mood</label>
+                  <input type="range" id="score-mood" name="mood" min="0" max="10" value="5">
+                  <span class="score-value" data-for="score-mood">5</span>
+                </div>
+                <div class="score-field">
+                  <label for="net-worth-delta">Net Worth Δ</label>
+                  <input type="number" id="net-worth-delta" name="net_worth_delta" value="0" step="any">
+                </div>
+              </div>
+            </div>
+            
+            <!-- Section 1: Identity & North Star -->
+            <div class="editor-section">
+              <h3 class="section-title">
+                <span class="section-number">1</span>
+                Identity & North Star
+              </h3>
+              <textarea id="section-1" name="section_1" rows="4" placeholder="Who am I becoming? What is my ultimate vision?"></textarea>
+            </div>
+            
+            <!-- Section 2: Top Priorities -->
+            <div class="editor-section">
+              <h3 class="section-title">
+                <span class="section-number">2</span>
+                Top 1-3 Priorities
+              </h3>
+              <textarea id="section-2" name="section_2" rows="4" placeholder="What are the 1-3 most important things I must accomplish today?"></textarea>
+            </div>
+            
+            <!-- Section 3: Time & Focus Plan -->
+            <div class="editor-section">
+              <h3 class="section-title">
+                <span class="section-number">3</span>
+                Time & Focus Plan
+              </h3>
+              <textarea id="section-3" name="section_3" rows="4" placeholder="How will I structure my time today?"></textarea>
+            </div>
+            
+            <!-- Section 4: Execution Checklist -->
+            <div class="editor-section">
+              <h3 class="section-title">
+                <span class="section-number">4</span>
+                Execution Checklist
+              </h3>
+              <div class="subsection">
+                <h4 class="subsection-title">Health</h4>
+                <textarea id="section-4a" name="section_4a" rows="2" placeholder="Exercise, sleep, nutrition..."></textarea>
+              </div>
+              <div class="subsection">
+                <h4 class="subsection-title">Skill</h4>
+                <textarea id="section-4b" name="section_4b" rows="2" placeholder="Learning, practice, growth..."></textarea>
+              </div>
+              <div class="subsection">
+                <h4 class="subsection-title">Money</h4>
+                <textarea id="section-4c" name="section_4c" rows="2" placeholder="Revenue, investments, savings..."></textarea>
+              </div>
+              <div class="subsection">
+                <h4 class="subsection-title">Leverage</h4>
+                <textarea id="section-4d" name="section_4d" rows="2" placeholder="Systems, delegation, automation..."></textarea>
+              </div>
+              <div class="subsection">
+                <h4 class="subsection-title">Mind</h4>
+                <textarea id="section-4e" name="section_4e" rows="2" placeholder="Meditation, reading, reflection..."></textarea>
+              </div>
+            </div>
+            
+            <!-- Section 5: Personal Balance Sheet -->
+            <div class="editor-section">
+              <h3 class="section-title">
+                <span class="section-number">5</span>
+                Personal Balance Sheet
+              </h3>
+              <textarea id="section-5" name="section_5" rows="4" placeholder="Assets, liabilities, net worth tracking..."></textarea>
+            </div>
+            
+            <!-- Section 6: Decisions & Thinking Log -->
+            <div class="editor-section">
+              <h3 class="section-title">
+                <span class="section-number">6</span>
+                Decisions & Thinking Log
+              </h3>
+              <textarea id="section-6" name="section_6" rows="4" placeholder="Key decisions made today, reasoning, outcomes..."></textarea>
+            </div>
+            
+            <!-- Section 7: Failure & Weakness Audit -->
+            <div class="editor-section">
+              <h3 class="section-title">
+                <span class="section-number">7</span>
+                Failure & Weakness Audit
+              </h3>
+              <textarea id="section-7" name="section_7" rows="4" placeholder="What didn't work? Where did I fall short?"></textarea>
+            </div>
+            
+            <!-- Section 8: Fix & Upgrade Plan -->
+            <div class="editor-section">
+              <h3 class="section-title">
+                <span class="section-number">8</span>
+                Fix & Upgrade Plan
+              </h3>
+              <textarea id="section-8" name="section_8" rows="4" placeholder="How will I fix the failures? What will I upgrade?"></textarea>
+            </div>
+            
+            <!-- Section 9: Wins & Progress -->
+            <div class="editor-section">
+              <h3 class="section-title">
+                <span class="section-number">9</span>
+                Wins & Progress
+              </h3>
+              <textarea id="section-9" name="section_9" rows="4" placeholder="What went well? What progress did I make?"></textarea>
+            </div>
+            
+            <!-- Section 10: Self-Score -->
+            <div class="editor-section">
+              <h3 class="section-title">
+                <span class="section-number">10</span>
+                Self-Score (0-10)
+              </h3>
+              <textarea id="section-10" name="section_10" rows="4" placeholder="Detailed self-assessment for the day..."></textarea>
+            </div>
+            
+            <!-- Section 11: Night Close -->
+            <div class="editor-section">
+              <h3 class="section-title">
+                <span class="section-number">11</span>
+                Night Close Reflection
+              </h3>
+              <textarea id="section-11" name="section_11" rows="4" placeholder="End of day reflection. Gratitude. Tomorrow's intention..."></textarea>
+            </div>
+          </form>
+        </div>
+      </section>
+      
+      <!-- Timeline View -->
+      <section id="view-timeline" class="view view-timeline">
+        <div class="timeline-container">
+          <div class="timeline-header">
+            <h2 class="timeline-title">Journal Timeline</h2>
+            <div class="timeline-search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input type="search" id="timeline-search" placeholder="Search entries..." aria-label="Search entries">
+            </div>
+          </div>
+          
+          <div class="timeline-list" id="timeline-list">
+            <p class="timeline-empty">No entries yet. Start building your empire!</p>
+          </div>
+          
+          <div class="timeline-pagination" id="timeline-pagination">
+            <button class="btn btn-ghost" id="prev-page-btn" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+              Previous
+            </button>
+            <span class="page-info" id="page-info">Page 1</span>
+            <button class="btn btn-ghost" id="next-page-btn" disabled>
+              Next
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Analytics View -->
+      <section id="view-analytics" class="view view-analytics">
+        <div class="analytics-container">
+          <div class="analytics-header">
+            <h2 class="analytics-title">Analytics</h2>
+            <div class="analytics-period">
+              <button class="period-btn active" data-period="7">7D</button>
+              <button class="period-btn" data-period="30">30D</button>
+              <button class="period-btn" data-period="90">90D</button>
+              <button class="period-btn" data-period="365">1Y</button>
+            </div>
+          </div>
+          
+          <div class="analytics-grid">
+            <!-- Summary Stats -->
+            <div class="card analytics-summary">
+              <h3 class="card-title">Summary</h3>
+              <div class="summary-stats">
+                <div class="summary-stat">
+                  <span class="summary-value" id="analytics-streak">0</span>
+                  <span class="summary-label">Current Streak</span>
+                </div>
+                <div class="summary-stat">
+                  <span class="summary-value" id="analytics-longest">0</span>
+                  <span class="summary-label">Longest Streak</span>
+                </div>
+                <div class="summary-stat">
+                  <span class="summary-value" id="analytics-completion">0%</span>
+                  <span class="summary-label">Completion Rate</span>
+                </div>
+                <div class="summary-stat">
+                  <span class="summary-value" id="analytics-missed">0</span>
+                  <span class="summary-label">Days Missed</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Score Trends -->
+            <div class="card analytics-trends">
+              <h3 class="card-title">Score Trends</h3>
+              <canvas id="trends-chart" width="600" height="300"></canvas>
+            </div>
+            
+            <!-- Discipline Chart -->
+            <div class="card analytics-discipline">
+              <h3 class="card-title">Discipline Breakdown</h3>
+              <canvas id="discipline-chart" width="300" height="300"></canvas>
+            </div>
+            
+            <!-- Averages -->
+            <div class="card analytics-averages">
+              <h3 class="card-title">Rolling Averages</h3>
+              <div class="averages-list">
+                <div class="average-item">
+                  <span class="average-label">7-Day Average</span>
+                  <span class="average-value" id="avg-7">0.0</span>
+                </div>
+                <div class="average-item">
+                  <span class="average-label">30-Day Average</span>
+                  <span class="average-value" id="avg-30">0.0</span>
+                </div>
+                <div class="average-item">
+                  <span class="average-label">All-Time Average</span>
+                  <span class="average-value" id="avg-all">0.0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  
+  <!-- Setup Modal -->
+  <div class="modal" id="setup-modal" role="dialog" aria-labelledby="setup-title" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="setup-title" class="modal-title">Welcome to Empire OS</h2>
+      </div>
+      <div class="modal-body">
+        <p class="setup-intro">Connect your GitHub account to start journaling. Your entries will be stored as Markdown files in your repository.</p>
+        
+        <div class="setup-steps">
+          <div class="setup-step">
+            <span class="step-number">1</span>
+            <div class="step-content">
+              <h4>Create a GitHub Repository</h4>
+              <p>Create a new private repository for your journal entries.</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <span class="step-number">2</span>
+            <div class="step-content">
+              <h4>Generate a Personal Access Token</h4>
+              <p>Go to <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener">GitHub Settings → Tokens</a> and create a new token with <code>repo</code> scope.</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <span class="step-number">3</span>
+            <div class="step-content">
+              <h4>Enter Your Details Below</h4>
+            </div>
+          </div>
+        </div>
+        
+        <form id="setup-form" class="setup-form">
+          <div class="form-group">
+            <label for="setup-repo">Repository</label>
+            <input type="text" id="setup-repo" placeholder="username/empire-journal" required>
+            <span class="form-hint">Format: username/repo-name</span>
+          </div>
+          <div class="form-group">
+            <label for="setup-token">Personal Access Token</label>
+            <input type="password" id="setup-token" placeholder="ghp_xxxxxxxxxxxx" required>
+            <span class="form-hint">Token is stored locally and never sent anywhere except GitHub.</span>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Connect & Start
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Export Modal -->
+  <div class="modal" id="export-modal" role="dialog" aria-labelledby="export-title" aria-modal="true" hidden>
+    <div class="modal-backdrop"></div>
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h2 id="export-title" class="modal-title">Export Entries</h2>
+        <button class="icon-btn modal-close" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="export-options">
+          <button class="export-option" data-format="zip">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span class="export-label">Download ZIP</span>
+            <span class="export-desc">All entries as .md files</span>
+          </button>
+          <button class="export-option" data-format="json">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <span class="export-label">Download JSON</span>
+            <span class="export-desc">Structured data for analysis</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Keyboard Shortcuts Modal -->
+  <div class="modal" id="shortcuts-modal" role="dialog" aria-labelledby="shortcuts-title" aria-modal="true" hidden>
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="shortcuts-title" class="modal-title">Keyboard Shortcuts</h2>
+        <button class="icon-btn modal-close" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="shortcuts-grid">
+          <div class="shortcut-group">
+            <h4>Navigation</h4>
+            <div class="shortcut"><kbd>1</kbd> Dashboard</div>
+            <div class="shortcut"><kbd>2</kbd> Editor</div>
+            <div class="shortcut"><kbd>3</kbd> Timeline</div>
+            <div class="shortcut"><kbd>4</kbd> Analytics</div>
+            <div class="shortcut"><kbd>T</kbd> Jump to today</div>
+          </div>
+          <div class="shortcut-group">
+            <h4>Editor</h4>
+            <div class="shortcut"><kbd>N</kbd> New entry (today)</div>
+            <div class="shortcut"><kbd>S</kbd> or <kbd>Ctrl+S</kbd> Save</div>
+            <div class="shortcut"><kbd>←</kbd> Previous day</div>
+            <div class="shortcut"><kbd>→</kbd> Next day</div>
+          </div>
+          <div class="shortcut-group">
+            <h4>General</h4>
+            <div class="shortcut"><kbd>/</kbd> Focus search</div>
+            <div class="shortcut"><kbd>Esc</kbd> Close modal</div>
+            <div class="shortcut"><kbd>Ctrl+E</kbd> Export menu</div>
+            <div class="shortcut"><kbd>?</kbd> This help</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+  
+  <!-- Scripts (ES Modules) -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

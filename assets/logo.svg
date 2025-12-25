@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#b8972f"/>
+      <stop offset="50%" style="stop-color:#d4af37"/>
+      <stop offset="100%" style="stop-color:#f4d03f"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer ring -->
+  <circle cx="64" cy="64" r="58" stroke="url(#gold-gradient)" stroke-width="4" fill="none"/>
+  
+  <!-- Inner cross -->
+  <path d="M64 20v88M20 64h88" stroke="url(#gold-gradient)" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Center orb -->
+  <circle cx="64" cy="64" r="20" fill="url(#gold-gradient)"/>
+  
+  <!-- Crown/Empire symbol on top -->
+  <path d="M44 40l8-12 12 8 12-8 8 12" stroke="url(#gold-gradient)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
